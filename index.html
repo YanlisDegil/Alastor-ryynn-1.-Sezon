@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gece Yayını</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,500&family=Figtree:wght@400;600&display=swap">
+<style>
+:root{--bg:#fbefe9;--ink:#3a0d1a;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#150509;--ink:#fbeee6}}
+:root[data-theme="dark"]{--bg:#150509;--ink:#fbeee6}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font-family:Figtree,system-ui,sans-serif;font-size:17px;display:grid;place-items:center}
+#stage{position:relative;width:min(100%,480px);height:100%;max-height:860px;overflow:hidden;background:#12040a;color:#fbeee6;user-select:none;-webkit-tap-highlight-color:transparent}
+#stage.shake{animation:shake .5s}
+#bg,#bg svg{position:absolute;inset:0;width:100%;height:100%}
+#bg svg{animation:zoom 22s ease-in-out infinite alternate}
+.vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 45%,rgba(0,0,0,.6)),repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 1px,transparent 1px 3px)}
+#stage::before{content:"";position:absolute;left:0;right:0;top:0;height:6%;background:#000;z-index:4}
+#chars{position:absolute;left:0;right:0;top:12%;bottom:36%;display:flex;justify-content:space-evenly;align-items:flex-end}
+.ch{position:relative;opacity:.5;filter:brightness(.6);transition:opacity .3s,filter .3s,transform .3s}
+.ch.on{opacity:1;filter:drop-shadow(0 0 14px var(--c));transform:translateY(-8px)}
+.ch.in{animation:slide .5s ease-out}
+.ch svg,.ch img{height:100%;width:auto;display:block}
+.ch span{position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-size:.7rem;white-space:nowrap;color:var(--c);font-weight:600}
+#box{position:absolute;left:4%;right:4%;bottom:3%;min-height:28%;padding:26px 18px 28px;background:rgba(18,4,10,.88);border:2px solid #f2c46d;border-radius:4px;z-index:3;cursor:pointer}
+#who{position:absolute;top:-15px;left:14px;padding:2px 14px;background:#12040a;border:2px solid #f2c46d;font-family:'Playfair Display',Georgia,serif;font-weight:700}
+#who:empty{display:none}
+#txt{line-height:1.55}
+#box.nar #txt{font-style:italic;color:#e8cfc8}
+#more{position:absolute;right:14px;bottom:6px;color:#f2c46d;animation:blink 1s infinite}
+#choices{position:absolute;left:0;right:0;bottom:0;z-index:5;padding:60px 4% 4%;display:grid;gap:10px;background:linear-gradient(transparent,rgba(10,3,8,.95) 30%)}
+#choices p{margin:0;font-family:'Playfair Display',Georgia,serif;font-style:italic;font-size:1.1rem;color:#f2c46d}
+[hidden]{display:none!important}
+button{font:inherit;color:#fbeee6;text-align:left;cursor:pointer;background:rgba(58,21,34,.95);border:2px solid #5c2335;border-radius:4px;padding:12px 16px}
+button:hover{border-color:#f2c46d}
+button:focus-visible{outline:3px solid #f2c46d;outline-offset:2px}
+button.main{background:#ff4d6d;color:#150509;border-color:#ff4d6d;font-weight:600;text-align:center}
+.ov{position:absolute;inset:0;z-index:8;display:flex;flex-direction:column;justify-content:center;padding:32px 26px;background:rgba(10,3,8,.96);opacity:0;pointer-events:none;transition:opacity .45s;overflow-y:auto}
+.ov.show{opacity:1;pointer-events:auto}
+.ov h1,.ov h2{font-family:'Playfair Display',Georgia,serif;margin:0 0 14px;line-height:1.15}
+.ov h1{font-size:2.2rem}.ov h2{font-size:1.8rem;color:#f2c46d;font-style:italic}
+.ov small{color:#ff4d6d;font-weight:600;margin-bottom:8px;display:block}
+.ov p{margin:0 0 12px;color:#e8cfc8}
+.note{border-left:4px solid #ff4d6d;padding-left:14px;color:#fbeee6!important}
+.fine{font-size:.78rem;color:#a98891!important;margin-top:14px!important}
+@keyframes zoom{to{transform:scale(1.1)}}
+@keyframes slide{from{opacity:0;transform:translateY(30px)}}
+@keyframes blink{50%{opacity:.2}}
+@keyframes shake{20%{transform:translate(-8px,4px)}40%{transform:translate(8px,-4px)}60%{transform:translate(-5px,2px)}80%{transform:translate(4px,-2px)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="stage">
+ <div id="bg"></div><div id="chars"></div><div class="vig"></div>
+ <div id="box"><div id="who"></div><div id="txt"></div><div id="more">▾</div></div>
+ <div id="choices" hidden></div>
+ <div id="card" class="ov"></div>
+ <div id="end" class="ov"></div>
+ <div id="menu" class="ov show">
+   <small>BÖLÜM 1</small><h1>Yeni Misafir</h1>
+   <p>Sen Reyyan'sın. Kalacak bir yer ararken garip bir otele giriyorsun. Seçimlerin hikâyeyi değiştirir: bazı yollar seni bu otelin bir parçası yapar, bazıları seni kapının dışında bırakır. 7 farklı son var.</p>
+   <p id="prog" class="fine"></p>
+   <button class="main" id="go">Yayını başlat</button>
+   <p class="fine">Hayran yapımı, kişisel bir hediye. Resmi bir içerik değildir.</p>
+ </div>
+</div>
+<script>
+/* ====== AYARLAR ====== */
+const HER="Reyyan", FROM="Senin adın";
+const NOTE=`${HER}, bu hikâyenin kahramanı sendin. Ama bu otelde, ve benim hayatımda, senin için her zaman bir oda hazır.`;
+// Kendi çizimlerini kullanmak istersen: IMG.a="img/alastor.png" gibi ekle (id: a,c,v,h,n,g,m)
+const IMG={};
+/* ===================== */
+const CH={a:["Alastor","#e8283c",1],r:["Reyyan","#7fd0ff",1],c:["Charlie","#ff8fb3",.95],v:["Vaggie","#a9b4ff",1],h:["Husk","#d9a066",1],n:["Niffty","#ffd34e",.6],g:["Angel Dust","#ff7be0",1.05],m:["Adam","#f2c46d",1.15]};
+const ALN={alastor:"Alastor",charlie:"Charlie",vaggie:"Vaggie",husk:"Husk",niffty:"Niffty",angel:"Angel Dust"};
+const SIL=c=>`<svg viewBox="0 0 60 120"><circle cx="30" cy="22" r="14" fill="${c}"/><path d="M6 118C6 70 14 48 30 48s24 22 24 70z" fill="${c}"/></svg>`;
+const BG={
+lobby:`<svg viewBox="0 0 100 160" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="a" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a0f22"/><stop offset="1" stop-color="#190510"/></linearGradient></defs><rect width="100" height="160" fill="url(#a)"/><g fill="#6b1b38"><path d="M6 105V52a20 20 0 0 1 40 0v53z"/><path d="M54 105V52a20 20 0 0 1 40 0v53z"/></g><g fill="#f2c46d" opacity=".5"><rect x="22" y="40" width="8" height="65"/><rect x="70" y="40" width="8" height="65"/></g><rect y="105" width="100" height="55" fill="#2b0a16"/><path d="M0 105h100" stroke="#f2c46d" stroke-width=".7"/></svg>`,
+bar:`<svg viewBox="0 0 100 160" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a1220"/><stop offset="1" stop-color="#160509"/></linearGradient></defs><rect width="100" height="160" fill="url(#b)"/><g fill="#f2c46d" opacity=".5"><rect x="8" y="42" width="84" height="1.5"/><rect x="8" y="68" width="84" height="1.5"/></g><g fill="#ff4d6d" opacity=".75"><rect x="12" y="29" width="5" height="13"/><rect x="25" y="31" width="5" height="11"/><rect x="60" y="28" width="5" height="14"/><rect x="78" y="30" width="5" height="12"/><rect x="18" y="55" width="5" height="13"/><rect x="48" y="56" width="5" height="12"/><rect x="70" y="54" width="5" height="14"/></g><rect y="108" width="100" height="52" fill="#3a1220"/><rect y="104" width="100" height="5" fill="#8a3a4a"/></svg>`,
+night:`<svg viewBox="0 0 100 160" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="n" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#12082a"/><stop offset="1" stop-color="#5a1230"/></linearGradient></defs><rect width="100" height="160" fill="url(#n)"/><circle cx="70" cy="40" r="22" fill="#ff4d6d" opacity=".85"/><path d="M10 160V82h14V66h18V50h16v16h18v16h14v78z" fill="#0b030a"/><g fill="#f2c46d" opacity=".8"><rect x="16" y="92" width="4" height="6"/><rect x="30" y="76" width="4" height="6"/><rect x="46" y="60" width="4" height="6"/><rect x="62" y="76" width="4" height="6"/><rect x="78" y="92" width="4" height="6"/><rect x="46" y="100" width="4" height="6"/></g></svg>`,
+roof:`<svg viewBox="0 0 100 160" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="rf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a0a1c"/><stop offset="1" stop-color="#6b1b38"/></linearGradient></defs><rect width="100" height="160" fill="url(#rf)"/><g fill="#fff"><circle cx="25" cy="30" r="1"/><circle cx="60" cy="20" r="1"/><circle cx="80" cy="45" r="1"/><circle cx="40" cy="15" r="1"/><circle cx="15" cy="55" r="1"/><circle cx="70" cy="60" r="1"/><circle cx="90" cy="25" r="1"/></g><path d="M0 160V110h10V95h12V80h14v10h10V70h16v20h10V85h14v10h8v-15h6v35z" fill="#12040a"/></svg>`};
+const D=(bg,c,n,x,fx)=>({bg,c,n,x,fx});
+const L=(c,n,x,fx)=>D("lobby",c,n,x,fx), B=(c,n,x,fx)=>D("bar",c,n,x,fx), N=(c,n,x,fx)=>D("night",c,n,x,fx), R=(c,n,x,fx)=>D("roof",c,n,x,fx);
+// Seçenek dizisi: [etiket, özellik(g/p/s/""), ittifak-anahtarı, devam-sahneleri, bayrak, kaos-puanı]
+const SCRIPT=[
+{card:"BÖLÜM 1",sub:"Yeni Misafir"},
+
+L("","","Bavulunu sürükleyerek otelin kapısına geldin. Tabelanın yarısı yanıyor, diğer yarısı çoktan sönmüş. Sen Reyyan'sın ve bu gece kalacak bir yer arıyorsun."),
+L("a","","Kapı kendiliğinden açılıyor. İçeride bir radyo cızırdıyor ve kırmızı ışıkta bir gülümseme beliriyor: Alastor."),
+L("a","a","Hoş geldin, sevgili misafir! Gece yayınımıza tam zamanında yetiştin."),
+{q:"Alastor'a ne dersin?",o:[
+ ["Cesurca: Yayın mı? Ben sadece oda arıyorum ama şovu izlerim","g","",[L("a","r","Yayın mı? Ben sadece oda arıyorum ama şovdan çekinmem."),L("a","a","Cesur bir misafir! Bu gece sıkılmayacağız.")]],
+ ["Zekice: Oda karşılığında ne istiyorsun?","p","alastor",[L("a","r","Oda var mı? Bedelini baştan söyle."),L("a","a","Akıllı misafir! Bedel ince bir ayrıntı, sabaha konuşuruz.")]],
+ ["Sakince: Teşekkür ederim, çok yorgunum","s","",[L("a","r","Teşekkürler. Uzun bir gün geçirdim."),L("a","a","Kibar misafirler çok nadirdir. Hoş geldin.")]]
+]},
+
+L("ac","","Merdivenlerden bir ses geliyor. Otelin sahibi Charlie koşarak iniyor."),
+L("ac","c","Yeni bir misafir! Hoş geldin, ben Charlie. Senin adın ne?"),
+{q:"Charlie'ye kendini tanıt.",o:[
+ ["Ben Reyyan. Hemen gezelim!","g","",[L("ac","r","Ben Reyyan. Burayı hemen gezmek istiyorum!"),L("ac","c","Harika bir enerji! Hadi başlayalım.")]],
+ ["Önce kuralları ve odaları öğrenmek isterim","p","charlie",[L("ac","r","Ben Reyyan. Önce otelin kurallarını ve odaların durumunu öğrenebilir miyim?"),L("ac","c","Ne kadar düzenli! Hemen anlatırım.")]],
+ ["Sessiz bir köşe bulsam yeter","s","",[L("ac","r","Ben Reyyan. Sadece sessiz bir köşe bulsam yeter."),L("ac","c","Elbette. Otel sana göre bir köşe bulur.")]]
+]},
+
+L("acv","","Charlie'nin arkasında Vaggie beliriyor, kolları kavuşturulmuş, bakışları keskin."),
+L("acv","v","Birini otele alırken dikkatli olmalıyız. Kimsin sen?"),
+{q:"Vaggie'ye ne dersin?",o:[
+ ["Bakışlarınla korkutamazsın, sadece misafirim","g","",[L("acv","r","Bakışlarınla beni korkutamazsın. Sadece bir misafirim."),L("acv","v","Cesur. Bakalım ne kadar sürecek.")]],
+ ["Bavulumu aramanıza izin veririm","p","vaggie",[L("acv","r","Anlıyorum. İstersen bavulumu aramana izin veririm."),L("acv","v","Bu... mantıklı bir teklif. Teşekkürler.")]],
+ ["Kimseye zarar vermeye gelmedim","s","",[L("acv","r","Merak etme, kimseye zarar vermeye gelmedim."),L("acv","v","Umarım doğrudur.")]]
+]},
+
+{card:"BÖLÜM 2",sub:"Gece Yarısı Kaosu"},
+
+B("hn","","Bara geçtiniz. Husk bardağını siliyor, Niffty hızla toz kovalıyor."),
+{q:"Barda ne yaparsın?",o:[
+ ["Husk'la sohbet et","s","husk",[B("hn","r","Zor bir gece mi?"),B("hn","h","Her gece zor gece. Ama sorduğun iyi oldu.")]],
+ ["Niffty'ye yardım et","g","niffty",[B("hn","r","Ben de süpüreyim mi?"),B("hn","n","Evet evet evet! Birlikte parlatalım!")]],
+ ["Menüyü ve fiyatları sorgula","p","",[B("hn","r","Menü nerede? Fiyatlar nasıl?"),B("hn","h","Sorgucu birine benziyorsun.")]],
+ ["Barın arkasına geç, kendi başına karıştır","","",[B("hn","r","Birkaç şişeyi kendim karıştırmayı denedim."),B("hn","h","Hey! Orası benim alanım!","shake")],"",1]
+]},
+
+B("g","","Kapı çarpıldı. Angel Dust içeri daldı ve bütün gözler ona döndü."),
+B("g","g","Yeni bir yüz! Hadi tatlım, kendini anlat."),
+{q:"Angel Dust'a ne dersin?",o:[
+ ["Hepinizden iyi dans ederim, bahse girerim","g","angel",[B("g","r","Hepinizden daha iyi dans ettiğime bahse girerim!"),B("g","g","Ooo, meydan okuma! Müziği açın!")]],
+ ["Önce sen anlat, ben de anlatırım","p","",[B("g","r","Ben anlatmadan önce senden bir şey öğrenebilir miyim?"),B("g","g","Pazarlıkçı biri. Sevdim.")]],
+ ["Sakin bir gece geçirmek istiyorum","s","",[B("g","r","Sadece sakin bir gece geçirmek istiyorum."),B("g","g","Sakin mi? Burada mı? Bakalım ne kadar sürecek.")]]
+]},
+
+L("","","Birden bir çığlık duyuluyor. Niffty'nin temizlik arabası devrilmiş, küçük bir alev perdeye sıçramış. Herkes sana bakıyor."),
+{q:"Küçük bir yangın var. Ne yaparsın?",o:[
+ ["Hemen koş, yangın söndürücüyü kap","g","niffty",[L("hn","r","Söndürücü nerede?! Buldum!"),L("hn","n","Aa, teşekkürler! Çok hızlıydın!")]],
+ ["Alastor'u çağır, o her şeyi bilir","p","alastor",[L("a","r","Alastor! Bir şey yap!"),L("a","a","Elbette, sevgili misafir. Küçük bir alev, küçük bir gösteri.")]],
+ ["Derin bir nefes al, herkesi yönlendir","s","charlie",[L("ac","r","Herkes sakin olsun, sırayla hareket edelim."),L("ac","c","Haklısın. Teşekkürler, Reyyan.")]],
+ ["Fark edilmeden sessizce uzaklaş","","",[L("","","Kimse görmeden köşeye çekildin. Diğerleri alevi kendi başlarına söndürdü."),L("cv","v","Reyyan neredeydi? Tam da gerekirken ortalıkta yoktu.")],"",2]
+]},
+
+R("","","Gece biraz dinlenmek için çatıya çıktın. Şehrin üstünde kızıl bir gökyüzü uzanıyor."),
+R("a","a","Yalnız kalmak mı istedin, yoksa biri seni mi buldu?"),
+R("ar","r","Sadece bir dakika nefes almak istedim. Burası... garip ama güzel."),
+R("ar","a","Garip ve güzel. Bu otelin mottosu olabilir, sevgili Reyyan."),
+
+{card:"BÖLÜM 3",sub:"Gökten Gelen Misafir"},
+
+N("","","Dışarıda gökyüzü yarıldı. Kapının önünde ışık saçan, kibirli bir figür duruyor: Adam.","shake"),
+N("m","m","Bu otelin sahibi nerede? Konuşmamız gereken şeyler var."),
+N("m","","Herkes lobide toplandı. Kapıya en yakın olan sensin ve gözler sana çevrildi."),
+{q:"Adam kapıda. Ne yaparsın?",o:[
+ ["Önüne geç: Bu otele giremezsin!","g","",[N("m","r","Bu otel misafirlerini korur. Bir adım atma!"),N("m","m","Küçük bir insan, benimle mi konuşuyor?","shake")]],
+ ["Konuşarak zaman kazan","p","",[N("ma","r","Bir dakika, önce kim olduğunu tam söyle."),N("ma","a","Güzel oyun, sevgili Reyyan.")]],
+ ["Sakince dinle, ne istediğini sor","s","",[N("m","r","Sesinde öfke var. Ne istiyorsun gerçekten?"),N("m","m","Ne?!")]],
+ ["Otel ekibini çağır","g","",[N("mcva","r","Herkes buraya! Evimizi birlikte savunalım!"),N("mcva","c","Burası bizim evimiz, Adam!"),N("mcva","v","Bir adım daha atarsan görürsün.")],"team"],
+ ["Sinirlenip bağır, kontrolü kaybet","","",[N("m","r","Defol git buradan!!!"),N("m","m","Sakin ol küçük insan. Gösteri bu kadar mıydı?","shake"),N("cv","c","Reyyan... bu hiç yardımcı olmadı.")],"",2]
+]}
+];
+const ENDS={
+team:["Otelin Ailesi","Adam kapıda tek bir misafir bulmayı bekliyordu. Karşısında bütün otel ekibi, ortasında sen vardın. O gece anladın ki bu tuhaf otel artık biraz da senin evin."],
+kicked:["Kapının Dışında","Gece boyunca bir türlü güven kazanamadın. Vaggie sessizce kapıyı gösterdi, kimse itiraz etmedi. Soğuk gece havasında, otelin ışıkları arkanda küçülürken yalnız kaldın. Belki bir dahaki sefere, her şey farklı olur."],
+lonely:["Yalnız Gölge","Kimseyle gerçekten yakınlaşmadın. Otel sakinleri seni unutmadı ama tam olarak da tanımadılar. Gece bittiğinde, odanın penceresinden şehre baktın ve kendi başına küçük bir huzur buldun."],
+g:["Gösterinin Yıldızı","Cesaretin otelin her köşesine yayıldı. O gece adını herkes öğrendi ve kimse unutmadı."],
+p:["Zekâ Oyunu","Her anlaşmayı, her kelimeyi doğru yerde kullandın. Otel sabaha çıktığında, en akıllı misafirin sen olduğunu herkes biliyordu."],
+s:["Sessiz Güç","Yüksek sesle konuşmadın ama herkes seni dinledi. Otelin en sakin köşesinde bile varlığın fark edildi."],
+alastor:["Alastor'un Gözdesi","Gece boyunca Alastor'un dikkati hep sendeydi. Mikrofonun karşısında değil, yanında durman gerektiğini ikiniz de fark ettiniz. Yayın kapandığında, statik bile biraz daha sessizdi."]
+};
+const $=id=>document.getElementById(id);
+let Q=[],st,prev=[],timer,typing=false,full="",bgNow="",choosing=false;
+const allies=()=>Object.keys(st.al).length;
+function found(){try{return JSON.parse(localStorage.getItem("reyyan_sonlar")||"[]");}catch(e){return [];}}
+function save(k){try{const f=found();if(!f.includes(k)){f.push(k);localStorage.setItem("reyyan_sonlar",JSON.stringify(f));}}catch(e){}}
+function start(){st={g:0,p:0,s:0,al:{},last:"",team:false,chaos:0};Q=SCRIPT.slice();prev=[];bgNow="";$("menu").classList.remove("show");$("end").classList.remove("show");next();}
+function next(){const s=Q.shift();if(!s)return ending();s.card?card(s):s.q?ask(s):say(s);}
+function say(s){
+ if(s.bg!==bgNow){bgNow=s.bg;$("bg").innerHTML=BG[s.bg];}
+ const ids=s.c.split("");
+ $("chars").innerHTML=ids.map(id=>{const [nm,col,sc]=CH[id];return `<div class="ch${id===s.n?" on":""}${prev.includes(id)?"":" in"}" style="--c:${col};height:${Math.round(sc*92)}%"><span>${nm}</span>${IMG[id]?`<img src="${IMG[id]}" alt="">`:SIL(col)}</div>`}).join("");
+ prev=ids;
+ $("who").textContent=s.n?CH[s.n][0]:"";$("who").style.color=s.n?CH[s.n][1]:"";
+ $("box").classList.toggle("nar",!s.n);
+ if(s.fx){const st2=$("stage");st2.classList.remove("shake");void st2.offsetWidth;st2.classList.add("shake");}
+ type(s.x);
+}
+function type(x){clearInterval(timer);full=x;typing=true;let i=0;$("txt").textContent="";$("more").style.opacity=0;
+ timer=setInterval(()=>{i++;$("txt").textContent=full.slice(0,i);if(i>=full.length)done();},24);}
+function done(){clearInterval(timer);typing=false;$("txt").textContent=full;$("more").style.opacity=1;}
+function advance(){if(choosing||$("menu").classList.contains("show")||$("end").classList.contains("show"))return;typing?done():next();}
+function ask(s){
+ choosing=true;const os=s.o.filter(o=>o[4]!=="team"||allies()>=2);
+ $("choices").innerHTML=`<p>${s.q}</p>`+os.map((o,i)=>`<button data-i="${i}">${o[0]}</button>`).join("");$("choices").hidden=false;
+ $("choices").onclick=e=>{const b=e.target.closest("button");if(!b)return;const o=os[+b.dataset.i];
+  if(o[1]){st[o[1]]++;st.last=o[1];}
+  if(o[2])st.al[o[2]]=1;
+  if(o[4]==="team")st.team=true;
+  if(o[5])st.chaos+=o[5];
+  $("choices").hidden=true;$("choices").innerHTML="";choosing=false;Q.unshift(...o[3]);next();};
+}
+function card(s){const c=$("card");c.innerHTML=`<small>${s.card}</small><h2>${s.sub}</h2>`;c.classList.add("show");
+ let t;const go=()=>{clearTimeout(t);c.onclick=null;c.classList.remove("show");setTimeout(next,450);};t=setTimeout(go,2600);c.onclick=go;}
+function ending(){
+ const allyN=allies();let k;
+ if(st.team&&st.chaos<2)k="team";
+ else if(st.chaos>=3)k="kicked";
+ else if(allyN===0)k="lonely";
+ else if(st.al.alastor&&st.chaos<2&&st.p>=st.g&&st.p>=st.s)k="alastor";
+ else{const m=Math.max(st.g,st.p,st.s);k=[st.last,"g","p","s"].find(x=>x&&st[x]===m);}
+ save(k);
+ const f=Object.keys(st.al).map(a=>ALN[a]).join(", ");
+ const fn=found().length, tt=Object.keys(ENDS).length;
+ $("end").innerHTML=`<small>SON</small><h2>${ENDS[k][0]}</h2><p>${ENDS[k][1]}</p>${f?`<p>Dost olduğun kişiler: ${f}.</p>`:""}<p class="note">${NOTE}</p><p>${FROM}</p><p class="fine">${fn} / ${tt} farklı son keşfettin.</p><button class="main" id="again">Başka bir yol dene</button>`;
+ $("end").classList.add("show");$("again").onclick=start;
+}
+const fn0=found().length, tt0=Object.keys(ENDS).length;
+if(fn0)$("prog").textContent=`Şimdiye kadar ${fn0} / ${tt0} farklı son keşfettin.`;
+$("box").onclick=advance;
+document.addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.target.tagName!=="BUTTON"){e.preventDefault();advance();}});
+$("go").onclick=start;
+</script>
+</body>
+  </html>
